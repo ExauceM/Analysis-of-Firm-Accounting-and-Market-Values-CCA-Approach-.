@@ -1,0 +1,192 @@
+---
+title: "CA 10"
+author: "Exauce Mbuyi"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(kableExtra)
+library(knitr)
+
+if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+if (!requireNamespace("DataTidy23RodoHonsMult", quietly = TRUE)) {
+# note that you'll need to reinstall the package
+# to get the latest version (as of 24 April 2024)
+# with the data set
+remotes::install_github("MiguelRodo/DataTidy23RodoHonsMult@2024")
+}
+data("corr_mat_profit", package = "DataTidy23RodoHonsMult")
+corr_mat_profit
+```
+
+
+\section{Question One}
+
+\subsubsection{Part (a):}
+
+```{r message=FALSE, warning=FALSE}
+rho <- corr_mat_profit # Renaming for convenience.
+
+# Extract the sub correlation matrices:
+rho_11 <- rho[1:6, 1:6] # For the first set of variables.
+rho_22 <- rho[7:8, 7:8] # For the second set of variables.
+rho_12 <- rho[1:6, 7:8] # Between group correlations.
+rho_21 <- rho[7:8, 1:6] # Between group correlations.
+
+# Performing matrix calculations for CCA:
+rho_11_inverse <- solve(rho_11) # For group one.
+rho_22_inverse <- solve(rho_22) # For group two.
+
+eigenDecomp_rho11 <- eigen(rho_11_inverse) # For group one.
+eigenDecomp_rho22 <- eigen(rho_22_inverse) # For group two.
+
+sqrt_rho_11 <- eigenDecomp_rho11$vectors%*%diag(sqrt(eigenDecomp_rho11$values))%*%t(eigenDecomp_rho11$vectors)
+
+sqrt_rho_22 <- eigenDecomp_rho22$vectors%*%diag(sqrt(eigenDecomp_rho22$values))%*%t(eigenDecomp_rho22$vectors)
+
+# Calculations on RHO matrix:
+RHO_mat <- sqrt_rho_11%*%rho_12%*%rho_22_inverse%*%rho_21%*%sqrt_rho_11 # Full
+RHO_eigen <- eigen(RHO_mat) # Eigen decomp on full matrix.
+
+# Obtaining the loading vectors:
+a_1 <- sqrt_rho_11%*%RHO_eigen$vectors[ , 1] # For group one.
+a_1 <- -1*a_1 # Rotate it.
+
+a_1 # Print the loading vector
+
+```
+\subsubsection{Part (b):}
+
+```{r message=FALSE, warning=FALSE}
+b_1 <- rho_22_inverse%*%rho_21%*%a_1 # Since b_1 is proportional to this.
+
+# Standardizing b_1:
+V1_var <- 1/(sqrt(t(b_1)%*%rho_22%*%b_1))
+V1_var <- matrix(c(V1_var, V1_var), 2, 1)
+
+b_1 <- b_1*(V1_var)
+
+b_1 # Print it.
+```
+
+\subsubsection{Part (c):}
+
+```{r message=FALSE, warning=FALSE}
+corr_coef_1 <- sqrt(RHO_eigen$values[1])
+
+corr_coef_1 # Print this.
+
+```
+
+\subsubsection{Part (d):}
+
+The variable $X^{(4)}$ has a relatively large negative canonical loading value, this means that $X^{(4)}$ is a key driver in a firm's accounting profitability. The variables $X^{(5)}$ and $X^{(6)}$ have high positive loading values, this means they are also key contributors to the accounting measures of profitability. From the loading vector $\mathbf{a_1}$ we can see that firms with high $X^{(4)}$ values will have low accounting profitability, whereas those with high $X^{(5)}$ and $X^{(6)}$ values will have higher accounting profitability.
+
+For the market value measures, the variable $X^{(7)}$ has a high negative value, which means it is a key driver of market value of a firm. Firms with high $X^{(7)}$ values are expected to have low market values.
+
+\subsubsection{Part (e)}
+
+```{r message=FALSE, warning=FALSE}
+# Calculating the correlation matrices:
+A_z <- t(matrix(a_1))
+B_z <- t(matrix(b_1))
+
+# Correlation between canonical variates and measured variables:
+corr_U1Z1 <- A_z%*%rho_11 
+corr_V1Z2 <- B_z%*%rho_22
+
+# Print them:
+corr_U1Z1
+corr_V1Z2
+```
+The correlations between the accounting measure variables and $U_1$ are high in magnitude for each of the accounting measures of profitability. This suggests that the.
+
+\section{Question Two}
+
+\subsubsection{Part (a):}
+
+From the covariance matrix, we can see that there is no correlation between $X_1^{(1)}$ and $X_2^{(2)}$ as the covariance between them is 0, therefore it will not contribute to the correlation between the linear combination of the first set of variables to the linear combination of the second set of variables. There is correlation between $X_2^{(1)}$ and $X_1^{(2)}$, therefore CCA can use these two variables to describe the relationship between the two sets of variables.
+
+\subsubsection{Part (b):}
+
+If the correlation between $X_2^{(1)}$ and $X_1^{(2)}$ is reduced to 0, then since $U_1 = X_2^{(1)}$ and $V_1=X_1^{(2)}$ the correlation between the first two canonical variables will also be reduced to 0, like so:
+
+$$Corr(U_1,V_1)=Corr(X_2^{(1)}, X_1^{(2)})=0$$
+
+Furthermore, another motivation would go like so: 
+If the correlation between $X_2^{(1)}$ and $X_1^{(2)}$ is reduced to 0, then
+
+$$\Sigma_{12}=\Sigma_{21}=\mathbf{0}$$
+From this we obtain the loadings vectors:
+
+$$\mathbf{a_1}=\mathbf{e_1^T}\Sigma_{11}^{-0.5}$$
+and
+
+$$\mathbf{b_1}=\Sigma_{22}^{-1}\Sigma_{21}\mathbf{a_1^T}$$
+
+However, we recover the fact that $\Sigma_{12}=\Sigma_{21}=\mathbf{0}$, hence:
+
+$$\mathbf{b_1}=\mathbf{0}$$
+
+This therefore means that $V_1=\mathbf{0}$, and hence:
+
+$$Cov(U_1,V_1)=Cov(\mathbf{a_1X_2^{(1)}, \mathbf{0}})=0$$
+
+The skilled reader would immediately recognize that this implies a correlation of 0 between $U_1$ and $V_1$.
+
+\subsubsection{Part (c):}
+
+Doubling the variance of each variable is akin to scaling each variable by $\sqrt{2}$, this will lead to the covariance doubling too, therefore the first canonical correlation will not change at all. Such results are intuitive since:
+
+$$Cov(U_1,V_1)=Cov(\sqrt{2}X_2^{(1)},\sqrt{2}X_1^{(2)})=2Cov(X_2^{(1)},X_1^{(2)})$$
+
+Hence:
+
+$$Corr(U_1,V_1)=\frac{2Cov(X_2^{(1)},X_1^{(2)})}{\sqrt{2Var(X_2^{(1)})}\sqrt{2Var(X_1^{(2)})}}=Corr(X_2^{(1)},X_1^{(2)})$$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
