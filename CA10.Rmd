@@ -51,7 +51,7 @@ RHO_eigen <- eigen(RHO_mat) # Eigen decomp on full matrix.
 
 # Obtaining the loading vectors:
 a_1 <- sqrt_rho_11%*%RHO_eigen$vectors[ , 1] # For group one.
-a_1 <- -1*a_1 # Rotate it.
+a_1 <- a_1 # Rotate it.
 
 a_1 # Print the loading vector
 
@@ -100,7 +100,7 @@ corr_V1Z2 <- B_z%*%rho_22
 corr_U1Z1
 corr_V1Z2
 ```
-The correlations between the accounting measure variables and $U_1$ are high in magnitude for each of the accounting measures of profitability. This suggests that the.
+The correlations between the accounting measure variables and $U_1$ are high in magnitude for each of the accounting measures of profitability. This suggests that the canonical variable $U_1$ captures a general accounting profitability pattern. So, $U_1$ captures the overall magnitude of accounting profitability of a firm. Similarly, the original market variables are positively correlated with the canonical variable $V_1$, which suggests that the $V_1$ captures the overall magnitude of a firm's market value.
 
 \section{Question Two}
 
@@ -145,8 +145,54 @@ Hence:
 
 $$Corr(U_1,V_1)=\frac{2Cov(X_2^{(1)},X_1^{(2)})}{\sqrt{2Var(X_2^{(1)})}\sqrt{2Var(X_1^{(2)})}}=Corr(X_2^{(1)},X_1^{(2)})$$
 
+\subsubsection{Part (d): Bonus}
 
+Canonical variates must be standardised so that:
 
+$$
+\text{Var}(U_1) = 1 \quad \text{and} \quad \text{Var}(V_1) = 1
+$$
+
+Since $U_1 = a_2 X_2^{(1)}$ and $V_1 = b_1 X_1^{(2)}$, the constraints expand to:
+
+$$
+\text{Var}(U_1) = a_2^2 \cdot \text{Var}(X_2^{(1)}) = 1
+\qquad \Rightarrow \qquad
+a_2 = \frac{1}{\sqrt{\text{Var}(X_2^{(1)})}}
+$$
+
+$$
+\text{Var}(V_1) = b_1^2 \cdot \text{Var}(X_1^{(2)}) = 1
+\qquad \Rightarrow \qquad
+b_1 = \frac{1}{\sqrt{\text{Var}(X_1^{(2)})}}
+$$
+
+Before Doubling:
+
+Originally, $\text{Var}(X_2^{(1)}) = 1$ and $\text{Var}(X_1^{(2)}) = 1$. Applying the constraint:
+
+$$
+a_2^2 \cdot 1 = 1 \quad \Rightarrow \quad a_2 = 1
+$$
+$$
+b_1^2 \cdot 1 = 1 \quad \Rightarrow \quad b_1 = 1
+$$
+
+The coefficient vectors have length (magnitude) **1**.
+
+After Doubling:
+
+Now $\text{Var}(X_2^{(1)}) = 2$ and $\text{Var}(X_1^{(2)}) = 2$. Applying the constraint:
+
+$$
+a_2^2 \cdot 2 = 1 \quad \Rightarrow \quad a_2^2 = \frac{1}{2} \quad \Rightarrow \quad a_2 = \frac{1}{\sqrt{2}}
+$$
+
+$$
+b_1^2 \cdot 2 = 1 \quad \Rightarrow \quad b_1^2 = \frac{1}{2} \quad \Rightarrow \quad b_1 = \frac{1}{\sqrt{2}}
+$$
+
+The coefficient vectors have length (magnitude) $\dfrac{1}{\sqrt{2}} \approx 0.707$.
 
 
 
